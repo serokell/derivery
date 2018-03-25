@@ -35,3 +35,11 @@
     - Content type: application/json
     - Secret: ~joke rookie philosophy invest sweetener phantom devil~
     - Events: only enable "Pull requests"
+
+** Host
+
+   Nix CI depends on two environment variables:
+
+   - ~NIX_CI_GITHUB_SECRET~ for webhook secret, see above in Setup
+   - ~NIX_CI_GITHUB_TOKEN~ for private access token with ~repo~ and ~gist~
+     capabilities, set up one at https://github.com/settings/tokens
