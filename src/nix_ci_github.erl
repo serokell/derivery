@@ -29,14 +29,8 @@ status(Coord, Description, State) ->
     status(Coord, Description, State, "").
 
 status({Name, Rev}, Description, State, URL) ->
-    httpc:request(
-      post,
-      {io_lib:format("https://api.github.com/repos/~s/statuses/~s", [Name, Rev]),
-       [{"authorization", io_lib:format("token ~s", [token()])},
-	{"user-agent", "nix-ci"}],
-       "application/json",
-       iolist_to_binary(json:encode(#{context => <<"Nix CI">>,
-				      description => Description,
-				      state => State,
-				      target_url => URL}))},
-      [], []).
+    {ok, _Response} = request(io_lib:format("/repos/~s/statuses/~s", [Name, Rev]),
+			      #{context => <<"Nix CI">>,
+				description => Description,
+				state => State,
+				target_url => URL}).
