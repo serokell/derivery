@@ -33,5 +33,5 @@
 
     - Payload URL: https://ci.serokell.io
     - Content type: application/json
-    - Secret: leave empty (TODO)
+    - Secret: ~joke rookie philosophy invest sweetener phantom devil~
     - Events: only enable "Pull requests"
