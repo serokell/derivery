@@ -26,9 +26,9 @@ build(Coord) ->
     {Status, Output} = nix_ci_builder:build_tarball(nix_ci_github:source_archive(Coord)),
     Description = list_to_binary(lists:last(string:tokens(Output, "\n"))),
     URL = nix_ci_github:gist(iolist_to_binary(Output)),
-    nix_ci_github:status(Coord, Description, encodeStatus(Status), URL).
+    nix_ci_github:status(Coord, Description, encode_status(Status), URL).
 
-encodeStatus(0) ->
+encode_status(0) ->
     <<"success">>;
-encodeStatus(_) ->
+encode_status(_) ->
     <<"failure">>.
