@@ -1,0 +1,35 @@
+* Nix CI
+
+** Setup
+
+*** Nix expression
+
+    To set up CI for your project, add ~default.nix~ to the root of your
+    repository. It should be a Nix expression that builds your repo and optionally
+    runs tests.
+
+    For example, here's how ~default.nix~ might look like for an Autotools project:
+
+    #+BEGIN_SRC nix
+    with import <nixpkgs> {};
+
+    stdenv.mkDerivation rec {
+      name = "example";
+      src = stdenv.lib.cleanSource ./.;
+
+      nativeBuildInputs = [ autoreconfHook pkgconfig ];
+      buildInputs = [ gtk3 ];
+
+      enableParallelBuilding = true;
+    }
+    #+END_SRC
+
+*** GitHub webhook
+
+    Go to https://github.com/serokell/your-project/settings/hooks and create a
+    new webhook. Settings:
+
+    - Payload URL: https://ci.serokell.io
+    - Content type: application/json
+    - Secret: leave empty (TODO)
+    - Events: only enable "Pull requests"
