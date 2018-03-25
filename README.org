@@ -24,6 +24,8 @@
     }
     #+END_SRC
 
+    If in doubt, ask operations team and we'll help you set it up.
+
 *** GitHub webhook
 
     Go to https://github.com/serokell/your-project/settings/hooks and create a
