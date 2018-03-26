@@ -2,6 +2,22 @@
 
 ** Setup
 
+*** CI server
+
+    You will need [[https://www.rebar3.org/][rebar3]]. Checkout this repo, build release by running ~rebar3
+    release~, start server via ~_build/default/rel/nix_ci/bin/nix_ci~.
+
+    Nix CI depends on two environment variables:
+
+    - ~NIX_CI_GITHUB_SECRET~ for webhook secret (arbitrary string)
+    - ~NIX_CI_GITHUB_TOKEN~ for private access token with ~repo~ and ~gist~
+      capabilities, set up one at https://github.com/settings/tokens
+
+*** Nginx
+
+    CI server is listening on port 50493. It's highly recommended that you set
+    up a Nginx reverse proxy that does TLS and listens on conventional port.
+
 *** Nix expression
 
     To set up CI for your project, add ~default.nix~ to the root of your
@@ -24,22 +40,12 @@
     }
     #+END_SRC
 
-    If in doubt, ask operations team and we'll help you set it up.
-
 *** GitHub webhook
 
-    Go to https://github.com/serokell/your-project/settings/hooks and create a
+    Go to https://github.com/owner/repo/settings/hooks and create a
     new webhook. Settings:
 
-    - Payload URL: https://ci.serokell.io
+    - Payload URL: https://ci.example.com
     - Content type: application/json
-    - Secret: ~joke rookie philosophy invest sweetener phantom devil~
+    - Secret: same as in ~NIX_CI_GITHUB_SECRET~
     - Events: only enable "Pull requests"
-
-** Host
-
-   Nix CI depends on two environment variables:
-
-   - ~NIX_CI_GITHUB_SECRET~ for webhook secret, see above in Setup
-   - ~NIX_CI_GITHUB_TOKEN~ for private access token with ~repo~ and ~gist~
-     capabilities, set up one at https://github.com/settings/tokens
