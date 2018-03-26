@@ -1,5 +1,5 @@
 {application, nix_ci,
- [{applications, [cowboy, json]},
+ [{applications, [cowboy, inets, json]},
   {description, "Nix CI implemented as GitHub hook"},
   {mod, {nix_ci_app, []}},
   {vsn, "20180326.084454"}]}.
