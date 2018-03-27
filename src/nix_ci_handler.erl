@@ -30,20 +30,20 @@ handle_trusted(<<"pull_request">>, Body, Req) ->
     {ok, Payload, _Rest} = json:decode(Body),
     #{<<"pull_request">> := #{<<"head">> := HEAD}} = Payload,
     #{<<"repo">> := #{<<"full_name">> := Name}} = HEAD,
+    #{<<"ref">> := Ref} = HEAD,
     #{<<"sha">> := Rev} = HEAD,
-    spawn(fun() -> build({Name, Rev}) end),
+    spawn(fun() -> build({Name, Ref, Rev}) end),
     cowboy_req:reply(202, Req);
 handle_trusted(_, _, Req) ->
     cowboy_req:reply(200, Req).
 
-build(Coord) ->
-    nix_ci_github:status(Coord, <<"Waiting for source archive...">>, <<"pending">>),
-    ok = timer:sleep(30 * 1000),
-    nix_ci_github:status(Coord, <<"Building...">>, <<"pending">>),
-    {Status, Output} = nix_ci_builder:build(nix_ci_builder:tarball_expression(nix_ci_github:source_archive(Coord))),
+build(Coordinates = {Name, Ref, Rev}) ->
+    nix_ci_github:status(Coordinates, <<"Building...">>, <<"pending">>),
+    Expr = nix_ci_builder:git_expression(nix_ci_github:ssh_url(Name), Ref, Rev),
+    {Status, Output} = nix_ci_builder:build(Expr),
     Description = list_to_binary(lists:last(string:tokens(Output, "\n"))),
     URL = nix_ci_github:gist(iolist_to_binary(Output)),
-    nix_ci_github:status(Coord, Description, encode_status(Status), URL).
+    nix_ci_github:status(Coordinates, Description, encode_status(Status), URL).
 
 encode_status(0) ->
     <<"success">>;
