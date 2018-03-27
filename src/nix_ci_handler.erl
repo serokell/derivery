@@ -40,7 +40,7 @@ build(Coord) ->
     nix_ci_github:status(Coord, <<"Waiting for source archive...">>, <<"pending">>),
     ok = timer:sleep(30 * 1000),
     nix_ci_github:status(Coord, <<"Building...">>, <<"pending">>),
-    {Status, Output} = nix_ci_builder:build_tarball(nix_ci_github:source_archive(Coord)),
+    {Status, Output} = nix_ci_builder:build(nix_ci_builder:tarball_expression(nix_ci_github:source_archive(Coord))),
     Description = list_to_binary(lists:last(string:tokens(Output, "\n"))),
     URL = nix_ci_github:gist(iolist_to_binary(Output)),
     nix_ci_github:status(Coord, Description, encode_status(Status), URL).

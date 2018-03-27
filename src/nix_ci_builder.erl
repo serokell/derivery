@@ -1,6 +1,10 @@
 -module(nix_ci_builder).
 
--export([build/1, build_tarball/1]).
+-export([build/1, git_expression/3, tarball_expression/1]).
+
+git_expression(URL, Ref, Rev) ->
+    io_lib:format(<<"import (builtins.fetchGit { url = \"~s\"; ref = \"~s\"; rev = \"~s\"; })">>,
+		  [URL, Ref, Rev]).
 
 tarball_expression(URL) ->
     io_lib:format(<<"import (builtins.fetchTarball ~s)">>, [URL]).
@@ -20,6 +24,3 @@ build(Expr) ->
     consume_port(erlang:open_port({spawn_executable, os:find_executable("nix-build")},
 				  [{args, [<<"-E">>, Expr, "--no-out-link"]},
 				   exit_status, stderr_to_stdout])).
-
-build_tarball(URL) ->
-    build(tarball_expression(URL)).
