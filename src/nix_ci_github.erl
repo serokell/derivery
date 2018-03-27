@@ -26,7 +26,7 @@ source_archive({Name, Rev}) ->
     io_lib:format(<<"https://~s@github.com/~s/archive/~s.tar.gz">>, [token(), Name, Rev]).
 
 status(Coord, Description, State) ->
-    status(Coord, Description, State, "").
+    status(Coord, Description, State, null).
 
 status({Name, Rev}, Description, State, URL) ->
     {ok, _Response} = request(io_lib:format("/repos/~s/statuses/~s", [Name, Rev]),
