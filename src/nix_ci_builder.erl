@@ -18,7 +18,8 @@ consume_port(Port, Output) ->
 
 build(Expr) ->
     consume_port(erlang:open_port({spawn_executable, os:find_executable("nix-build")},
-				  [{args, [<<"-E">>, Expr, "--no-out-link"]}, exit_status])).
+				  [{args, [<<"-E">>, Expr, "--no-out-link"]},
+				   exit_status, stderr_to_stdout])).
 
 build_tarball(URL) ->
     build(tarball_expression(URL)).
