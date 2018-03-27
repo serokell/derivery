@@ -37,6 +37,8 @@ handle_trusted(_, _, Req) ->
     cowboy_req:reply(200, Req).
 
 build(Coord) ->
+    nix_ci_github:status(Coord, <<"Waiting for source archive...">>, <<"pending">>),
+    ok = timer:sleep(30 * 1000),
     nix_ci_github:status(Coord, <<"Building...">>, <<"pending">>),
     {Status, Output} = nix_ci_builder:build_tarball(nix_ci_github:source_archive(Coord)),
     Description = list_to_binary(lists:last(string:tokens(Output, "\n"))),
