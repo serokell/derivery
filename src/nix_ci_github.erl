@@ -20,7 +20,7 @@ gist(Data) ->
 gist(Name, Data) ->
     case request("/gists", #{files => #{Name => #{content => Data}}}) of
 	{ok, {_HTTP, _Headers, Payload}} ->
-	    #{<<"html_url">> := URL} = jsone:decode(Payload),
+	    #{<<"html_url">> := URL} = jsone:decode(iolist_to_binary(Payload)),
 	    URL;
 	_ ->
 	    null
