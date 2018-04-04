@@ -40,9 +40,8 @@ build(Coordinates = {Name, Ref, Rev}) ->
     nix_ci_github:status(Coordinates, <<"Building...">>, <<"pending">>),
     Expr = nix_ci_builder:git_expression(nix_ci_github:ssh_url(Name), Ref, Rev),
     {Status, Output} = nix_ci_builder:build(Expr),
-    Description = list_to_binary(lists:last(string:tokens(Output, "\n"))),
     URL = nix_ci_github:gist(iolist_to_binary(Output)),
-    nix_ci_github:status(Coordinates, Description, encode_status(Status), URL).
+    nix_ci_github:status(Coordinates, <<>>, encode_status(Status), URL).
 
 encode_status(0) ->
     <<"success">>;
