@@ -18,9 +18,13 @@ gist(Data) ->
     gist(<<"nix-ci.log">>, Data).
 
 gist(Name, Data) ->
-    {ok, {_HTTP, _Headers, Payload}} = request("/gists", #{files => #{Name => #{content => Data}}}),
-    {ok, #{<<"html_url">> := URL}, _Rest} = json:decode(Payload),
-    URL.
+    case request("/gists", #{files => #{Name => #{content => Data}}}) of
+	{ok, {_HTTP, _Headers, Payload}} ->
+	    {ok, #{<<"html_url">> := URL}, _Rest} = json:decode(Payload),
+	    URL;
+	_ ->
+	    null
+    end.
 
 ssh_url(Name) ->
     io_lib:format(<<"ssh://git@github.com:/~s.git">>, [Name]).
