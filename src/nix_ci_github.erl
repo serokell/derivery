@@ -11,7 +11,7 @@ request(Resource, Body) ->
        [{"authorization", io_lib:format("token ~s", [token()])},
 	{"user-agent", "nix-ci"}],
        "application/json",
-       iolist_to_binary(json:encode(Body))},
+       iolist_to_binary(jsone:encode(Body))},
       [], []).
 
 gist(Data) ->
@@ -20,7 +20,7 @@ gist(Data) ->
 gist(Name, Data) ->
     case request("/gists", #{files => #{Name => #{content => Data}}}) of
 	{ok, {_HTTP, _Headers, Payload}} ->
-	    {ok, #{<<"html_url">> := URL}, _Rest} = json:decode(Payload),
+	    #{<<"html_url">> := URL} = jsone:decode(Payload),
 	    URL;
 	_ ->
 	    null

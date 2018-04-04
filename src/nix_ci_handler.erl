@@ -27,8 +27,7 @@ encode_signature(Bin) ->
     list_to_binary("sha1=" ++ binary_to_hex(Bin)).
 
 handle_trusted(<<"pull_request">>, Body, Req) ->
-    {ok, Payload, _Rest} = json:decode(Body),
-    #{<<"pull_request">> := #{<<"head">> := HEAD}} = Payload,
+    #{<<"pull_request">> := #{<<"head">> := HEAD}} = jsone:decode(Body),
     #{<<"repo">> := #{<<"full_name">> := Name}} = HEAD,
     #{<<"ref">> := Ref} = HEAD,
     #{<<"sha">> := Rev} = HEAD,
