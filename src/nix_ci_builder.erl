@@ -22,5 +22,5 @@ consume_port(Port, Output) ->
 
 build(Expr) ->
     consume_port(erlang:open_port({spawn_executable, os:find_executable("nix-build")},
-				  [{args, [<<"-E">>, Expr, "--no-out-link"]},
+				  [{args, [<<"-E">>, Expr, <<"--no-out-link">>, <<"--show-trace">>]},
 				   exit_status, stderr_to_stdout])).
