@@ -1,16 +1,16 @@
 -module(derivery_github).
 -export([gist/1, ssh_url/1, archive_url/2, status/3, status/4]).
 
-request(Resource, Body) ->
+request(Resource, ReqBody) ->
     {ok, Token} = application:get_env(derivery, github_token),
     {ok, ConnPid} = gun:open("api.github.com", 443),
     StreamRef = gun:post(ConnPid, Resource, [
       {<<"authorization">>, [<<"token ">>, Token]},
       {<<"content-type">>, <<"application/json">>},
       {<<"user-agent">>, <<"Derivery">>}
-    ], jsone:encode(Body)),
-    {ok, Payload} = gun:await_body(ConnPid, StreamRef),
-    jsone:decode(Payload).
+    ], jsone:encode(ReqBody)),
+    {ok, RespBody} = gun:await_body(ConnPid, StreamRef),
+    jsone:decode(RespBody).
 
 gist(Data) ->
     gist(<<"derivery.log">>, Data).
