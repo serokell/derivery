@@ -25,9 +25,9 @@ encode_signature(Bin) ->
 
 handle(<<"pull_request">>, Payload, Req) ->
     #{<<"pull_request">> := #{<<"head">> := HEAD}} = Payload,
-    #{<<"repo">> := #{<<"full_name">> := Name}} = HEAD,
-    #{<<"ref">> := Ref} = HEAD,
-    #{<<"sha">> := Rev} = HEAD,
+    #{<<"repo">> := #{<<"full_name">> := Name},
+      <<"ref">> := Ref,
+      <<"sha">> := Rev} = HEAD,
     spawn(fun() -> build(Name, Ref, Rev) end),
     cowboy_req:reply(202, Req);
 handle(_, _, Req) ->
