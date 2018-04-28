@@ -1,8 +1,7 @@
--module(nix_ci_sup).
--behaviour(supervisor).
-
+-module(derivery_sup).
 -export([start_link/0, init/1]).
 
+-behaviour(supervisor).
 -define(SERVER, ?MODULE).
 
 start_link() ->

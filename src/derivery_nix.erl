@@ -1,5 +1,4 @@
--module(nix_ci_builder).
-
+-module(derivery_nix).
 -export([build/1, git_expression/3, tarball_expression/1]).
 
 git_expression(URL, Ref, Rev) ->

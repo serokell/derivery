@@ -1,28 +1,28 @@
-* Nix CI
+* Derivery
 
 ** Setup
 
 *** CI server
 
     You will need [[https://www.rebar3.org/][rebar3]]. Checkout this repo, build release by running ~rebar3
-    release~, start server via ~_build/default/rel/nix_ci/bin/nix_ci~.
+    release~, start server via ~_build/default/rel/derivery/bin/derivery~.
 
-    Nix CI depends on two environment variables:
+    Derivery requires two OTP env parameters:
 
-    - ~NIX_CI_GITHUB_SECRET~ for webhook secret (arbitrary string)
-    - ~NIX_CI_GITHUB_TOKEN~ for private access token with ~repo~ and ~gist~
+    - ~github_secret~ for webhook secret (arbitrary string)
+    - ~github_token~ for private access token with ~repo~ and ~gist~
       capabilities, set up one at https://github.com/settings/tokens
 
-*** Nginx
+*** Reverse proxy
 
     CI server is listening on port 50493. It's highly recommended that you set
-    up a Nginx reverse proxy that does TLS and listens on conventional port.
+    up a reverse proxy that does TLS and listens on conventional port.
 
 *** Nix expression
 
     To set up CI for your project, add ~default.nix~ to the root of your
-    repository. It should be a Nix expression that builds your repo and optionally
-    runs tests.
+    repository. It should be a Nix expression that builds your repo and
+    optionally runs tests.
 
     For example, here's how ~default.nix~ might look like for an Autotools project:
 
@@ -47,5 +47,5 @@
 
     - Payload URL: https://ci.example.com
     - Content type: application/json
-    - Secret: same as in ~NIX_CI_GITHUB_SECRET~
+    - Secret: same as OTP ~github_secret~
     - Events: only enable "Pull requests"

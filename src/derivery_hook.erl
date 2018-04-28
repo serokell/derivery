@@ -1,18 +1,16 @@
--module(nix_ci_handler).
+-module(derivery_hook).
+-export([execute/2]).
 
--export([init/2]).
-
-secret() -> os:getenv("NIX_CI_GITHUB_SECRET").
-
-init(Req0, Opts) ->
+execute(Req0, #{}) ->
     {ok, Body, Req1} = cowboy_req:read_body(Req0),
     Event = cowboy_req:header(<<"x-github-event">>, Req1),
     Signature = cowboy_req:header(<<"x-hub-signature">>, Req1),
-    Resp = handle(Event, Body, Req1, Signature),
-    {ok, Resp, Opts}.
+    Response = handle(Event, Body, Req1, Signature),
+    {ok, Response, #{}}.
 
 handle(Event, Body, Req, Signature0) ->
-    Signature1 = encode_signature(crypto:hmac(sha, secret(), Body)),
+    {ok, Secret} = application:get_env(derivery, github_secret),
+    Signature1 = encode_signature(crypto:hmac(sha, Secret, Body)),
     if Signature0 == Signature1 ->
 	    handle_trusted(Event, Body, Req);
        true ->
@@ -37,11 +35,11 @@ handle_trusted(_, _, Req) ->
     cowboy_req:reply(200, Req).
 
 build(Coordinates = {Name, Ref, Rev}) ->
-    nix_ci_github:status(Coordinates, <<"Building...">>, <<"pending">>),
-    Expr = nix_ci_builder:git_expression(nix_ci_github:ssh_url(Name), Ref, Rev),
-    {Status, Output} = nix_ci_builder:build(Expr),
-    URL = nix_ci_github:gist(iolist_to_binary(Output)),
-    nix_ci_github:status(Coordinates, <<>>, encode_status(Status), URL).
+    derivery_github:status(Coordinates, <<"Building...">>, <<"pending">>),
+    Expr = derivery_nix:git_expression(derivery_github:ssh_url(Name), Ref, Rev),
+    {Status, Output} = derivery_nix:build(Expr),
+    URL = derivery_github:gist(iolist_to_binary(Output)),
+    derivery_github:status(Coordinates, <<>>, encode_status(Status), URL).
 
 encode_status(0) ->
     <<"success">>;

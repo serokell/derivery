@@ -1,0 +1,8 @@
+{application, derivery,
+ [{applications, [cowboy, inets, jsone]},
+  {description, "CI/CD hook for Nix projects"},
+  {env, [{github_secret, none},
+	 {github_token, none},
+	 {port, 50493}]},
+  {mod, {derivery_app, []}},
+  {vsn, "20180428.020217"}]}.
