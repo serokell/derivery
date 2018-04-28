@@ -1,5 +1,5 @@
 {application, derivery,
- [{applications, [cowboy, inets, jsone]},
+ [{applications, [cowboy, gun, jsone]},
   {description, "CI/CD hook for Nix projects"},
   {env, [{port, 50493}]},
   {mod, {derivery_app, []}},
