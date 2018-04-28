@@ -3,16 +3,15 @@
 
 execute(Req0, #{}) ->
     {ok, Body, Req1} = cowboy_req:read_body(Req0),
-    Event = cowboy_req:header(<<"x-github-event">>, Req1),
-    Signature = cowboy_req:header(<<"x-hub-signature">>, Req1),
-    Response = handle(Event, Body, Req1, Signature),
-    {ok, Response, #{}}.
+    {ok, authenticate(Body, Req1), #{}}.
 
-handle(Event, Body, Req, Signature0) ->
+authenticate(Body, Req) ->
     {ok, Secret} = application:get_env(derivery, github_secret),
+    Signature0 = cowboy_req:header(<<"x-hub-signature">>, Req),
     Signature1 = encode_signature(crypto:hmac(sha, Secret, Body)),
     if Signature0 == Signature1 ->
-	    handle_trusted(Event, Body, Req);
+	    Event = cowboy_req:header(<<"x-github-event">>, Req),
+	    handle(Event, jsone:decode(Body), Req);
        true ->
 	    cowboy_req:reply(400, Req)
     end.
@@ -24,14 +23,14 @@ binary_to_hex(Bin) ->
 encode_signature(Bin) ->
     list_to_binary("sha1=" ++ binary_to_hex(Bin)).
 
-handle_trusted(<<"pull_request">>, Body, Req) ->
-    #{<<"pull_request">> := #{<<"head">> := HEAD}} = jsone:decode(Body),
+handle(<<"pull_request">>, Payload, Req) ->
+    #{<<"pull_request">> := #{<<"head">> := HEAD}} = Payload,
     #{<<"repo">> := #{<<"full_name">> := Name}} = HEAD,
     #{<<"ref">> := Ref} = HEAD,
     #{<<"sha">> := Rev} = HEAD,
     spawn(fun() -> build(Name, Ref, Rev) end),
     cowboy_req:reply(202, Req);
-handle_trusted(_, _, Req) ->
+handle(_, _, Req) ->
     cowboy_req:reply(200, Req).
 
 build(Name, Ref, Rev) ->
