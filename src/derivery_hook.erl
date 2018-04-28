@@ -35,8 +35,8 @@ handle(_, _, Req) ->
 
 build(Name, Ref, Rev) ->
     derivery_github:status(Name, Rev, <<"pending">>),
-    Expr = derivery_nix:fetch_git(derivery_github:ssh_url(Name), Ref, Rev),
-    {Status, Output} = derivery_nix:build(Expr),
+    Src = derivery_nix:fetch_git(derivery_github:ssh_url(Name), Ref, Rev),
+    {Status, Output} = derivery_nix:build(derivery_nix:import(Src)),
     GistURL = derivery_github:gist(iolist_to_binary(Output)),
     derivery_github:status(Name, Rev, encode_status(Status), GistURL).
 
