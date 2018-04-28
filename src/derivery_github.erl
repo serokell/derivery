@@ -1,5 +1,5 @@
 -module(derivery_github).
--export([gist/1, ssh_url/1, archive_url/2, status/3, status/4]).
+-export([gist/1, ssh_url/1, status/3, status/4]).
 
 request(Resource, ReqBody) ->
     {ok, Token} = application:get_env(derivery, github_token),
@@ -22,11 +22,6 @@ gist(Name, Data) ->
 
 ssh_url(Name) ->
     io_lib:format(<<"ssh://git@github.com:/~s.git">>, [Name]).
-
-archive_url(Name, Rev) ->
-    {ok, Token} = application:get_env(derivery, github_token),
-    io_lib:format(<<"https://~s@github.com/~s/archive/~s.tar.gz">>,
-		  [Token, Name, Rev]).
 
 status(Name, Rev, State) ->
     status(Name, Rev, State, null).
