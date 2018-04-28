@@ -29,17 +29,17 @@ handle_trusted(<<"pull_request">>, Body, Req) ->
     #{<<"repo">> := #{<<"full_name">> := Name}} = HEAD,
     #{<<"ref">> := Ref} = HEAD,
     #{<<"sha">> := Rev} = HEAD,
-    spawn(fun() -> build({Name, Ref, Rev}) end),
+    spawn(fun() -> build(Name, Ref, Rev) end),
     cowboy_req:reply(202, Req);
 handle_trusted(_, _, Req) ->
     cowboy_req:reply(200, Req).
 
-build(Coordinates = {Name, Ref, Rev}) ->
-    derivery_github:status(Coordinates, <<"Building...">>, <<"pending">>),
+build(Name, Ref, Rev) ->
+    derivery_github:status(Name, Rev, <<"pending">>),
     Expr = derivery_nix:git_expression(derivery_github:ssh_url(Name), Ref, Rev),
     {Status, Output} = derivery_nix:build(Expr),
-    URL = derivery_github:gist(iolist_to_binary(Output)),
-    derivery_github:status(Coordinates, <<>>, encode_status(Status), URL).
+    GistURL = derivery_github:gist(iolist_to_binary(Output)),
+    derivery_github:status(Name, Rev, encode_status(Status), GistURL).
 
 encode_status(0) ->
     <<"success">>;

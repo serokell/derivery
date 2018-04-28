@@ -1,43 +1,38 @@
 -module(derivery_github).
--export([gist/1, ssh_url/1, source_archive/1, status/3, status/4]).
+-export([gist/1, ssh_url/1, archive_url/2, status/3, status/4]).
 
-%% TODO: https://github.com/ninenines/gun
 request(Resource, Body) ->
     {ok, Token} = application:get_env(derivery, github_token),
-    httpc:request(
-      post,
-      {"https://api.github.com" ++ Resource,
-       [{"authorization", io_lib:format("token ~s", [Token])},
-	{"user-agent", "Derivery"}],
-       "application/json",
-       iolist_to_binary(jsone:encode(Body))},
-      [], []).
+    {ok, ConnPid} = gun:open("api.github.com", 443),
+    StreamRef = gun:post(ConnPid, Resource, [
+      {<<"authorization">>, [<<"token ">>, Token]},
+      {<<"content-type">>, <<"application/json">>},
+      {<<"user-agent">>, <<"Derivery">>}
+    ], jsone:encode(Body)),
+    {ok, Payload} = gun:await_body(ConnPid, StreamRef),
+    jsone:decode(Payload).
 
 gist(Data) ->
     gist(<<"derivery.log">>, Data).
 
 gist(Name, Data) ->
-    case request("/gists", #{files => #{Name => #{content => Data}}}) of
-	{ok, {_HTTP, _Headers, Payload}} ->
-	    #{<<"html_url">> := URL} = jsone:decode(iolist_to_binary(Payload)),
-	    URL;
-	_ ->
-	    null
-    end.
+    Payload = request(<<"/gists">>,
+		      #{files => #{Name => #{content => Data}}}),
+    #{<<"html_url">> := URL} = Payload, URL.
 
 ssh_url(Name) ->
     io_lib:format(<<"ssh://git@github.com:/~s.git">>, [Name]).
 
-source_archive({Name, _Ref, Rev}) ->
+archive_url(Name, Rev) ->
     {ok, Token} = application:get_env(derivery, github_token),
-    io_lib:format(<<"https://~s@github.com/~s/archive/~s.tar.gz">>, [Token, Name, Rev]).
+    io_lib:format(<<"https://~s@github.com/~s/archive/~s.tar.gz">>,
+		  [Token, Name, Rev]).
 
-status(Coordinates, Description, State) ->
-    status(Coordinates, Description, State, null).
+status(Name, Rev, State) ->
+    status(Name, Rev, State, null).
 
-status({Name, _Ref, Rev}, Description, State, URL) ->
-    {ok, _Response} = request(io_lib:format("/repos/~s/statuses/~s", [Name, Rev]),
-			      #{context => <<"Derivery">>,
-				description => Description,
-				state => State,
-				target_url => URL}).
+status(Name, Rev, State, URL) ->
+    request([<<"/repos/">>, Name, <<"/statuses/">>, Rev],
+	    #{context => <<"Derivery">>,
+	      state => State,
+	      target_url => URL}).
