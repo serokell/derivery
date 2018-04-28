@@ -1,22 +1,54 @@
 * Derivery
 
+  CI/CD hook for Nix-based projects.
+
+** Rationale
+
+   Leveraging Nix as builder results in dependencies being cached by default
+   (short build times), being able to reuse build artifacts as binary cache, and
+   deep integration in Nix ecosystem and tooling.
+
+   Continuous delivery is implemented via a symlink in home directory, for
+   example, ~~/serokell/derivery/refs/heads/master~. That means
+   deployments are always atomic, and can be trivially used to serve static
+   content, but also can output arbitrary Nix code for import by system profile.
+
 ** Setup
 
-*** CI server
+*** Service
 
-    You will need [[https://www.rebar3.org/][rebar3]]. Checkout this repo, build release by running ~rebar3
-    release~, start server via ~_build/default/rel/derivery/bin/derivery~.
+**** Build
 
-    Derivery requires two OTP env parameters:
+     1. Checkout this repo.
+     2. Install [[https://www.rebar3.org/][rebar3]].
+     3. Run ~rebar3 release~.
 
-    - ~github_secret~ for webhook secret (arbitrary string)
-    - ~github_token~ for private access token with ~repo~ and ~gist~
-      capabilities, set up one at https://github.com/settings/tokens
+**** Setup
+
+     There are two required OTP parameters:
+
+     - ~github_secret~ for webhook secret (arbitrary string)
+     - ~github_token~ for private access token with ~repo~ and ~gist~
+       capabilities, set up one at https://github.com/settings/tokens
+
+     Create a ~derivery.config~ file with your parameters:
+
+     #+BEGIN_SRC erlang
+     [{derivery, [{github_secret, "correct horse battery staple"},
+                  {github_token, "86fb269d190d2c85f6e0468ceca42a20"}]}].
+     #+END_SRC
+
+     Pass in config to release via ~ERL_FLAGS~ environment variable:
+
+     #+BEGIN_SRC
+     ERL_FLAGS="-config derivery.config" _build/default/rel/derivery/bin/derivery
+     #+END_SRC
 
 *** Reverse proxy
 
-    CI server is listening on port 50493. It's highly recommended that you set
-    up a reverse proxy that does TLS and listens on conventional port.
+    Server is listening on port 50493 (unless you pass in custom ~port~ in OTP
+    config). It's highly recommended that you set up a reverse proxy that does
+    TLS and listens on conventional port.
 
 *** Nix expression
 
@@ -48,4 +80,4 @@
     - Payload URL: https://ci.example.com
     - Content type: application/json
     - Secret: same as OTP ~github_secret~
-    - Events: only enable "Pull requests"
+    - Events: enable "Pull requests" for CI, enable "Pushes" for CD
