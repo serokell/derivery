@@ -28,15 +28,22 @@ handle(<<"pull_request">>, Payload, Req) ->
     #{<<"repo">> := #{<<"full_name">> := Name},
       <<"ref">> := Ref,
       <<"sha">> := Rev} = HEAD,
-    spawn(fun() -> build(Name, Ref, Rev) end),
+    spawn(fun() -> build(Name, Ref, Rev, none) end),
+    cowboy_req:reply(202, Req);
+handle(<<"push">>, Payload, Req) ->
+    #{<<"repository">> := #{<<"full_name">> := Name},
+      <<"ref">> := Ref,
+      <<"after">> := Rev} = Payload,
+    OutLink = filename:join([os:getenv("HOME"), Name, Ref]),
+    spawn(fun() -> build(Name, Ref, Rev, OutLink) end),
     cowboy_req:reply(202, Req);
 handle(_, _, Req) ->
     cowboy_req:reply(200, Req).
 
-build(Name, Ref, Rev) ->
+build(Name, Ref, Rev, OutLink) ->
     derivery_github:status(Name, Rev, <<"pending">>),
     Src = derivery_nix:fetch_git(derivery_github:ssh_url(Name), Ref, Rev),
-    {Status, Output} = derivery_nix:build(derivery_nix:import(Src)),
+    {Status, Output} = derivery_nix:build(derivery_nix:import(Src), OutLink),
     GistURL = derivery_github:gist(iolist_to_binary(Output)),
     derivery_github:status(Name, Rev, encode_status(Status), GistURL).
 

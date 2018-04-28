@@ -1,5 +1,5 @@
 -module(derivery_nix).
--export([build/1, build/2, fetch_git/3, fetch_tarball/1, import/1]).
+-export([build/2, fetch_git/3, fetch_tarball/1, import/1]).
 
 fetch_git(URL, Ref, Rev) ->
     io_lib:format(<<"builtins.fetchGit {"
@@ -26,10 +26,10 @@ consume_port(Port, Output) ->
 	    {Status, Output}
     end.
 
-build(Expr) ->
-    build_with_args(Expr, [<<"--no-out-link">>]).
-
+build(Expr, none) ->
+    build_with_args(Expr, [<<"--no-out-link">>]);
 build(Expr, OutLink) ->
+    ok = filelib:ensure_dir(filename:dirname(OutLink)),
     build_with_args(Expr, [<<"--out-link">>, OutLink]).
 
 build_with_args(Expr, Args) ->
