@@ -1,11 +1,11 @@
 -module(derivery_nix).
--export([build/1, git_expression/3, tarball_expression/1]).
+-export([build/1, fetch_git/3, fetch_tarball/1]).
 
-git_expression(URL, Ref, Rev) ->
+fetch_git(URL, Ref, Rev) ->
     io_lib:format(<<"import (builtins.fetchGit { url = \"~s\"; ref = \"~s\"; rev = \"~s\"; })">>,
 		  [URL, Ref, Rev]).
 
-tarball_expression(URL) ->
+fetch_tarball(URL) ->
     io_lib:format(<<"import (builtins.fetchTarball ~s)">>, [URL]).
 
 consume_port(Port) ->
