@@ -27,6 +27,9 @@
      2. Install [[https://www.rebar3.org/][rebar3]].
      3. Run ~rebar3 release~.
 
+     Alternatively, use this Nix derivation:
+     https://github.com/serokell/serokell-public-overlay/blob/public/pkgs/derivery/default.nix
+
 **** Setup
 
      There are two required OTP parameters:
