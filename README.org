@@ -8,10 +8,13 @@
    (short build times), being able to reuse build artifacts as binary cache, and
    deep integration in Nix ecosystem and tooling.
 
-   Continuous delivery is implemented via a symlink in home directory, for
-   example, ~/serokell/derivery/refs/heads/master. That means deployments
-   are always atomic, and can be trivially used to serve static content,
-   but also can trigger a path-activated NixOS rebuild; see:
+   Continuous delivery is implemented by creating a symlink to a Nix path in home directory
+   on push to a branch. For example, push to master will trigger a nix-build that will produce
+   a symlink ~/user/repo/refs/heads/master pointing to /nix/store/...-repo. This approach ensures
+   that deployments are always atomic.
+   
+   Symlink can be directly used to serve static content. Additionally, CD touches home directory
+   on successful build, which can be used to trigger `nixos-rebuild` via systemd path activation:
    https://github.com/serokell/serokell-public-overlay/blob/public/modules/services/derivery.nix 
 
 ** Setup
