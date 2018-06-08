@@ -9,9 +9,10 @@
    deep integration in Nix ecosystem and tooling.
 
    Continuous delivery is implemented via a symlink in home directory, for
-   example, ~~/serokell/derivery/refs/heads/master~. That means
-   deployments are always atomic, and can be trivially used to serve static
-   content, but also can output arbitrary Nix code for import by system profile.
+   example, ~/serokell/derivery/refs/heads/master. That means deployments
+   are always atomic, and can be trivially used to serve static content,
+   but also can trigger a path-activated NixOS rebuild; see:
+   https://github.com/serokell/serokell-public-overlay/blob/public/modules/services/derivery.nix 
 
 ** Setup
 
