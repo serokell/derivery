@@ -28,27 +28,32 @@ ref_to_branch(<<"refs/heads/", Branch/binary>>) -> Branch.
 handle(<<"pull_request">>, Payload, Req) ->
     #{<<"pull_request">> := #{<<"head">> := HEAD}} = Payload,
     #{<<"repo">> := #{<<"full_name">> := Name},
-      <<"ref">> := Ref,
       <<"sha">> := Rev} = HEAD,
-    spawn(fun() -> build(Name, Ref, Rev, none) end),
+    spawn(fun() -> build(Name, Rev) end),
     cowboy_req:reply(202, Req);
 handle(<<"push">>, Payload, Req) ->
     #{<<"repository">> := #{<<"full_name">> := Name},
       <<"ref">> := Ref,
       <<"after">> := Rev} = Payload,
     OutLink = filename:join([os:getenv("HOME"), Name, ref_to_branch(Ref)]),
-    spawn(fun() -> build(Name, Ref, Rev, OutLink) end),
+    spawn(fun() -> build(Name, Rev, OutLink) end),
     cowboy_req:reply(202, Req);
 handle(_, _, Req) ->
     cowboy_req:reply(200, Req).
 
-build(Name, Ref, Rev, OutLink) ->
-    derivery_github:status(Name, Rev, <<"pending">>),
-    Src = derivery_nix:fetch_git(derivery_github:ssh_url(Name), Ref, Rev),
-    Expr = derivery_nix:trace(derivery_github:commit_url(Name, Rev), derivery_nix:multiple_outputs(derivery_nix:import(Src))),
-    {Status, Output} = derivery_nix:build(Expr, OutLink),
-    GistURL = derivery_github:gist(iolist_to_binary(Output)),
-    derivery_github:status(Name, Rev, encode_status(Status), GistURL).
+build(Name, Rev) ->
+	build(Name, Rev, none).
+
+build(Name, Rev, OutLink) ->
+    case derivery_github:is_file(Name, Rev, <<"default.nix">>) of
+        true ->
+            derivery_github:status(Name, Rev, <<"pending">>),
+            Src = derivery_nix:fetch_tarball(derivery_github:tarball_url(Name, Rev)),
+            Expr = derivery_nix:trace(derivery_github:commit_url(Name, Rev), derivery_nix:multiple_outputs(derivery_nix:import(Src))),
+            {Status, Output} = derivery_nix:build(Expr, OutLink),
+            GistURL = derivery_github:gist(iolist_to_binary(Output)),
+            derivery_github:status(Name, Rev, encode_status(Status), GistURL)
+    end.
 
 encode_status(0) ->
     <<"success">>;
