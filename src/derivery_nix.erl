@@ -1,5 +1,5 @@
 -module(derivery_nix).
--export([build/2, fetch_git/3, import/1]).
+-export([build/2, fetch_git/3, import/1, multiple_outputs/1]).
 
 fetch_git(URL, Ref, Rev) ->
     io_lib:format(<<"builtins.fetchGit {"
@@ -11,6 +11,9 @@ fetch_git(URL, Ref, Rev) ->
 
 import(Expr) ->
     io_lib:format(<<"import (~s)">>, [Expr]).
+
+multiple_outputs(Expr) ->
+    io_lib:format(<<"(~s).all">>, [Expr]).
 
 consume_port(Port) ->
     consume_port(Port, []).
