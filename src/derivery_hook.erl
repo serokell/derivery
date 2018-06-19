@@ -23,6 +23,8 @@ binary_to_hex(Bin) ->
 encode_signature(Bin) ->
     list_to_binary("sha1=" ++ binary_to_hex(Bin)).
 
+ref_to_branch(<<"refs/heads/", Branch/binary>>) -> Branch.
+
 handle(<<"pull_request">>, Payload, Req) ->
     #{<<"pull_request">> := #{<<"head">> := HEAD}} = Payload,
     #{<<"repo">> := #{<<"full_name">> := Name},
@@ -34,7 +36,7 @@ handle(<<"push">>, Payload, Req) ->
     #{<<"repository">> := #{<<"full_name">> := Name},
       <<"ref">> := Ref,
       <<"after">> := Rev} = Payload,
-    OutLink = filename:join([os:getenv("HOME"), Name, Ref]),
+    OutLink = filename:join([os:getenv("HOME"), Name, ref_to_branch(Ref)]),
     spawn(fun() -> build(Name, Ref, Rev, OutLink) end),
     cowboy_req:reply(202, Req);
 handle(_, _, Req) ->
