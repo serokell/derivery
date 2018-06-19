@@ -1,5 +1,5 @@
 -module(derivery_github).
--export([gist/1, ssh_url/1, status/3, status/4]).
+-export([commit_url/2, gist/1, ssh_url/1, status/3, status/4]).
 
 request(Resource, ReqBody) ->
     {ok, Token} = application:get_env(derivery, github_token),
@@ -11,6 +11,9 @@ request(Resource, ReqBody) ->
     ], jsone:encode(ReqBody)),
     {ok, RespBody} = gun:await_body(ConnPid, StreamRef),
     jsone:decode(RespBody).
+
+commit_url(Name, Rev) ->
+    io_lib:format(<<"https://github.com/~s/commit/~s">>, [Name, Rev]).
 
 gist(Data) ->
     gist(<<"derivery.log">>, Data).
