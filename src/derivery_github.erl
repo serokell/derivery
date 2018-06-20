@@ -14,6 +14,7 @@ request(Method, Resource, Payload) ->
     ], jsone:encode(Payload)),
     {response, _, Status, Headers} = gun:await(ConnPid, StreamRef),
     {ok, Body} = gun:await_body(ConnPid, StreamRef),
+    io:format(standard_error, "~s responded with ~B", [Resource, Status]),
     {Status, Headers, Body}.
 
 commit_url(Name, Rev) ->

@@ -13,6 +13,9 @@ authenticate(Body, Req) ->
 	    Event = cowboy_req:header(<<"x-github-event">>, Req),
 	    handle(Event, jsone:decode(Body), Req);
        true ->
+            io:format(standard_error,
+		      <<"rejected payload (got ~s, expected ~s): ~s">>,
+		      [Signature0, Signature1, Body]),
 	    cowboy_req:reply(400, Req)
     end.
 
@@ -45,6 +48,7 @@ build(Name, Rev) ->
 	build(Name, Rev, none).
 
 build(Name, Rev, OutLink) ->
+    io:format(standard_error, <<"building ~s@~s">>, [Name, Rev]),
     case derivery_github:is_file(Name, Rev, <<"default.nix">>) of
         true ->
             derivery_github:status(Name, Rev, <<"pending">>),
