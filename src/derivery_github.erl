@@ -20,9 +20,6 @@ request(Method, Resource, Payload) ->
 commit_url(Name, Rev) ->
     io_lib:format(<<"https://github.com/~s/commit/~s">>, [Name, Rev]).
 
-commit_url(Name, Rev) ->
-    io_lib:format(<<"https://github.com/~s/commit/~s">>, [Name, Rev]).
-
 gist(Data) ->
     gist(<<"derivery.log">>, Data).
 
