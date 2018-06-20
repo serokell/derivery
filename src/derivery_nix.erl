@@ -32,7 +32,6 @@ consume_port(Port, Output) ->
 build(Expr, none) ->
     build_with_args(Expr, [<<"--no-out-link">>]);
 build(Expr, OutLink) ->
-    ok = filelib:ensure_dir(filename:dirname(OutLink)),
     Report = build_with_args(Expr, [<<"--out-link">>, OutLink]),
     ok = file:change_time(os:getenv("HOME"), erlang:universaltime()),
     Report.
