@@ -38,7 +38,7 @@ handle(<<"push">>, Payload, Req) ->
     #{<<"repository">> := #{<<"full_name">> := Name},
       <<"ref">> := Ref,
       <<"after">> := Rev} = Payload,
-    OutLink = filename:join([os:getenv("HOME"), Name, ref_to_branch(Ref)]),
+    OutLink = filename:join([os:getenv("HOME"), "github.com", Name, ref_to_branch(Ref)]),
     spawn(fun() -> build(Name, Rev, OutLink) end),
     cowboy_req:reply(202, Req);
 handle(_, _, Req) ->
