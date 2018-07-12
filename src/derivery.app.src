@@ -1,6 +1,6 @@
 {application, derivery,
  [{applications, [cowboy, gun, jsone]},
   {description, "CI/CD hook for Nix projects"},
-  {env, [{port, 50493}]},
+  {env, [{ranch_tcp_opts, [{ip, {local, <<"derivery.sock">>}}]}]},
   {mod, {derivery_app, []}},
   {vsn, "20180428.020217"}]}.
