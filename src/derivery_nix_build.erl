@@ -32,7 +32,7 @@ cached_path(Expr) ->
     {Status, Log} = build_with_args(Expr, [<<"--max-jobs">>, <<"0">>, <<"--no-out-link">>]),
     case Status of
         ok ->
-            {ok, string:trim(Log)};
+            string:trim(Log);
         error ->
             not_found
     end.
