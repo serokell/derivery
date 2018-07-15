@@ -1,5 +1,5 @@
 -module(derivery_nix).
--export([build/2, fetch_git/3, import/1, multiple_outputs/1, trace/2]).
+-export([fetch_git/3, import/1, multiple_outputs/1, trace/2]).
 
 fetch_git(URL, Ref, Rev) ->
     io_lib:format(<<"builtins.fetchGit {"
@@ -17,29 +17,3 @@ multiple_outputs(Expr) ->
 
 trace(Msg, Expr) ->
     io_lib:format(<<"builtins.trace \"~s\" (~s)">>, [Msg, Expr]).
-
-consume_port(Port) ->
-    consume_port(Port, []).
-
-consume_port(Port, Output) ->
-    receive
-	{Port, {data, Bytes}} ->
-	    consume_port(Port, [Output|Bytes]);
-	{Port, {exit_status, Status}} ->
-	    {Status, Output}
-    end.
-
-build(Expr, none) ->
-    build_with_args(Expr, [<<"--no-out-link">>]);
-build(Expr, OutLink) ->
-    Report = build_with_args(Expr, [<<"--out-link">>, OutLink]),
-    ok = file:change_time(os:getenv("HOME"), erlang:universaltime()),
-    Report.
-
-build_with_args(Expr, Args) ->
-    Exec = os:find_executable("nix-build"),
-    Port = erlang:open_port(
-	     {spawn_executable, Exec},
-	     [{args, [<<"-E">>, Expr, <<"--show-trace">>] ++ Args},
-	      exit_status, stderr_to_stdout]),
-    consume_port(Port).

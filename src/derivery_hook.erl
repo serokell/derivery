@@ -45,7 +45,7 @@ handle(_, _, Req) ->
     cowboy_req:reply(200, Req).
 
 build(Name, Rev) ->
-	build(Name, Rev, none).
+	build(Name, Rev, no_out_link).
 
 build(Name, Rev, OutLink) ->
     io:format(standard_error, <<"building ~s@~s">>, [Name, Rev]),
@@ -54,12 +54,12 @@ build(Name, Rev, OutLink) ->
             derivery_github:status(Name, Rev, <<"pending">>),
             Src = derivery_nix:fetch_tarball(derivery_github:tarball_url(Name, Rev)),
             Expr = derivery_nix:trace(derivery_github:commit_url(Name, Rev), derivery_nix:multiple_outputs(derivery_nix:import(Src))),
-            {Status, Output} = derivery_nix:build(Expr, OutLink),
-            GistURL = derivery_github:gist(iolist_to_binary(Output)),
+            {Status, Log} = derivery_nix_build:build_cached(Expr, OutLink),
+            GistURL = derivery_github:gist(iolist_to_binary(Log)),
             derivery_github:status(Name, Rev, encode_status(Status), GistURL)
     end.
 
-encode_status(0) ->
+encode_status(ok) ->
     <<"success">>;
-encode_status(_) ->
+encode_status(error) ->
     <<"failure">>.
