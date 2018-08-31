@@ -36,9 +36,9 @@ status(Name, Rev, State) ->
 
 status(Name, Rev, State, URL) ->
     request(post, [<<"/repos/">>, Name, <<"/statuses/">>, Rev],
-	    #{context => <<"Derivery">>,
-	      state => State,
-	      target_url => URL}).
+      #{context => <<"Derivery">>,
+        state => State,
+        target_url => URL}).
 
 tarball_url(Name, Rev) ->
     {_, Headers, _} = request(get, [<<"/repos/">>, Name, <<"/tarball/">>, Rev]),

@@ -3,11 +3,11 @@
 
 fetch_git(URL, Ref, Rev) ->
     io_lib:format(<<"builtins.fetchGit {"
-		    "url = ''~s'';"
-		    "ref = ''~s'';"
-		    "rev = ''~s'';"
-		    "}">>,
-		  [URL, Ref, Rev]).
+        "url = ''~s'';"
+        "ref = ''~s'';"
+        "rev = ''~s'';"
+        "}">>,
+      [URL, Ref, Rev]).
 
 import(Expr) ->
     io_lib:format(<<"import (~s)">>, [Expr]).

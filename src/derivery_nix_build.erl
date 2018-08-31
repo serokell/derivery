@@ -18,7 +18,7 @@ status_to_term(_) -> error.
 execute(Name, Args) ->
     Exec = os:find_executable(Name),
     Port = erlang:open_port({spawn_executable, Exec},
-	     [{args, Args}, exit_status, stderr_to_stdout]),
+       [{args, Args}, exit_status, stderr_to_stdout]),
     {Status, Log} = consume_port(Port),
     {status_to_term(Status), Log}.
 
@@ -48,6 +48,6 @@ build_cached(Expr, OutLink) ->
     case cached_path(Expr) of
         not_found ->
             build(Expr, OutLink);
-	Path ->
-	    retrieve_log(Path)
+  Path ->
+      retrieve_log(Path)
     end.

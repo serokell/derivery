@@ -10,18 +10,18 @@ authenticate(Body, Req) ->
     Signature0 = cowboy_req:header(<<"x-hub-signature">>, Req),
     Signature1 = encode_signature(crypto:hmac(sha, Secret, Body)),
     if Signature0 == Signature1 ->
-	    Event = cowboy_req:header(<<"x-github-event">>, Req),
-	    handle(Event, jsone:decode(Body), Req);
+      Event = cowboy_req:header(<<"x-github-event">>, Req),
+      handle(Event, jsone:decode(Body), Req);
        true ->
             io:format(standard_error,
-		      <<"rejected payload (got ~s, expected ~s): ~s">>,
-		      [Signature0, Signature1, Body]),
-	    cowboy_req:reply(400, Req)
+          <<"rejected payload (got ~s, expected ~s): ~s">>,
+          [Signature0, Signature1, Body]),
+      cowboy_req:reply(400, Req)
     end.
 
 binary_to_hex(Bin) ->
     lists:flatten([io_lib:format("~2.16.0b", [X]) ||
-		      X <- binary_to_list(Bin)]).
+          X <- binary_to_list(Bin)]).
 
 encode_signature(Bin) ->
     list_to_binary("sha1=" ++ binary_to_hex(Bin)).
@@ -45,7 +45,7 @@ handle(_, _, Req) ->
     cowboy_req:reply(200, Req).
 
 build(Name, Rev) ->
-	build(Name, Rev, no_out_link).
+  build(Name, Rev, no_out_link).
 
 build(Name, Rev, OutLink) ->
     io:format(standard_error, <<"building ~s@~s">>, [Name, Rev]),
